@@ -5,34 +5,75 @@ bool higherRow(Field f0, Field f1)
     return (f0.coords().y() < f1.coords().y());
 }
 
-std::vector<Field> adjacentStones(Field& field)
+std::vector<Field> GameData::adjacentStones(Field& field)
 {
+    std::vector<Field> adj;
 
+    for (auto &i: modifiers) {
+        int adjx = field.coords().x() + i.first;
+        int adjy = field.coords().y() + i.second;
+
+        Field current = getField(adjx, adjy);
+
+        if (current.getPlayer() == opposingPlayer())
+        {
+            adj.push_back(current);
+        }
+    }
+    return adj;
 }
 
-void GameData::findGroup(std::set<Field, not_equal_to<>>& adjacent, std::vector<Field> pending)
+bool GameData::fieldContainsOpponent(Field& field) const
 {
-    if (!pending.empty()) {
-        Field field = pending.back();
-        pending.pop_back();
+    if (field.getPlayer() != _currentPlayer && field.getPlayer() != EMPTY)
+    {
+        if (field.coords().x() < boardHeightWidth && field.coords().y() < boardHeightWidth)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
-        for (auto &i: modifiers) {
-            int adjx = field.coords().x() + i.first;
-            int adjy = field.coords().y() + i.second;
+void GameData::findGroup(vector<Field>& final, vector<Field>& pending)
+{
+    Field target = pending.back();
+    pending.pop_back();
 
-            Player p = getField(adjx, adjy).getPlayer();
+    for (auto& i : modifiers)
+    {
+        int adjx = target.coords().x() + i.first;
+        int adjy = target.coords().y() + i.second;
+        Field cur = getField(adjx, adjy);
 
-            if (p != field.getPlayer() && p != EMPTY) {
-                Field cur = getField(adjx, adjy);
-
-                adjacent.insert(cur);
-
-                if (std::find(pending.begin(), pending.end(), cur) != pending.end()) {
-                    pending.push_back(cur);
-                }
+        if (fieldContainsOpponent(cur))
+        {
+            if (!(std::find(final.begin(), final.end(), cur) != final.end()))
+            {
+                pending.push_back(cur);
+                final.push_back(cur);
             }
         }
-        findGroup(adjacent, pending);
+    }
+    if (!pending.empty())
+    {
+        findGroup(final, pending);
+    }
+}
+
+void GameData::doesFieldCapture(Field& field)
+{
+    std::vector<Field> final;
+    std::vector<Field> pending;
+
+    pending.push_back(field);
+
+    findGroup(final, pending);
+    std::sort(final.begin(), final.end(), higherRow);
+
+    for (auto& i : final)
+    {
+        cout << i;
     }
 }
 
@@ -41,6 +82,7 @@ void GameData::placeStone(Field& field)
     if (field.isEmpty())
     {
         field.player = this->_currentPlayer;
+        doesFieldCapture(field);
 
         if (this->_currentPlayer == Black)
         {
@@ -49,20 +91,6 @@ void GameData::placeStone(Field& field)
         else
         {
             this->_currentPlayer = Black;
-        }
-        std::set<Field, not_equal_to<>> adjacent;
-        std::vector<Field> pending;
-        pending.push_back(field);
-
-        findGroup(adjacent, pending);
-
-        // FIXME: Figure out how to use vector from the beginning to avoid this conversion
-        std::vector<Field> final(adjacent.begin(), adjacent.end());
-        std::sort(final.begin(), final.end(), higherRow);
-
-        for (auto& i : final)
-        {
-            std::cout << i;
         }
     }
 }

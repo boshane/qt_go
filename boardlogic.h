@@ -106,9 +106,12 @@ public:
     Field& getField(int id) { return _fields[id]; }
     Field& getField(int x, int y) { return _fields[(y * boardHeightWidth) + x]; };
     vector<Field> Fields() { return this->_fields; };
-    void findGroup(std::set<Field, not_equal_to<>>& adjacent, std::vector<Field> pending);
+    void findGroup(std::vector<Field>& final, std::vector<Field>& pending);
+    void doesFieldCapture(Field& field);
+    bool fieldContainsOpponent(Field& field) const;
     std::vector<Field> adjacentStones(Field& field);
     void placeStone(Field& field);
+    Player opposingPlayer() { return (_currentPlayer == Black) ? White : Black; }
 
 
     int boardHeightWidth;

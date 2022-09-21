@@ -14,7 +14,7 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(qt_go main.cpp boardlogic.cpp boardlogic.h draw.cpp draw.h math.cpp math.h)
+add_executable(qt_go main.cpp boardlogic.cpp boardlogic.h draw.cpp draw.h math.cpp math.h game.h)
 target_link_libraries(qt_go
         Qt::Core
         Qt::Gui

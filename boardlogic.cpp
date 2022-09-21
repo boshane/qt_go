@@ -71,6 +71,8 @@ void GameData::doesFieldCapture(Field& field)
     findGroup(final, pending);
     std::sort(final.begin(), final.end(), higherRow);
 
+    Player attacker = opposingPlayer(field);
+
     for (auto& i : final)
     {
         cout << i;

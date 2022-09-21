@@ -1,5 +1,15 @@
 #include "draw.h"
 
+QSize RenderBoard::sizeHint() const
+{
+    return QSize(800, 700);
+}
+
+QSize RenderBoard::minimumSizeHint() const
+{
+    return QSize(800, 700);
+}
+
 RenderBoard::RenderBoard(GameData &gameData, QWidget *parent)
         : QWidget(parent), _gameData(gameData) {
     setBackgroundRole(QPalette::Base);
@@ -111,3 +121,10 @@ void RenderBoard::mousePressEvent(QMouseEvent *event)
         repaint();
     }
 }
+
+void RenderBoard::setPlayer(Player player)
+{
+    this->_gameData._currentPlayer = player;
+    update();
+}
+

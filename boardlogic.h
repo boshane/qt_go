@@ -12,8 +12,7 @@
 #include <QColor>
 #include <QMouseEvent>
 #include <iostream>
-#include <set>
-
+#include "game.h"
 
 using namespace std;
 
@@ -28,33 +27,22 @@ static std::vector<std::pair<int, int>> modifiers = {
         {-1, 1}
 };
 
-enum Player {
-    Black, White, EMPTY
-};
-
-const unordered_map<Player, string> player_map {
-        { Black, "Player Black" },
-        { White, "Player White" },
-        { EMPTY, "No player" }
-};
-
 class Field {
 public:
+
     Field() : _coords(QPoint(0, 0)), player{EMPTY}, id{0} {}
     Field(int x, int y, int id) : _coords{QPoint(x, y)}, player{EMPTY}, id{id}
     {
-        _center = QPoint((x + 1) * 50, (y + 1) * 50);
+        _center = QPoint((x + 1) * 40, (y + 1) * 40);
     }
     QPoint pixelPosition() { return this->_center; }
     QPoint coords() { return this->_coords; }
-    void setPlayer(Player p) { this->player = p; }
+    int xScreenPos() { return _center.x(); }
+    int yScreenPos() { return _center.y(); }
+    int x() const { return _coords.x(); }
+    int y() const { return _coords.y(); }
     Player getPlayer() { return player; }
-    int x() { return this->_center.x(); }
-    int y() { return this->_center.y(); }
-    void setX(int x) { this->_center.setY(x); }
-    void setY(int y) { this->_center.setY(y); }
     bool isEmpty() { if (this->getPlayer() == EMPTY) return true; else return false; }
-    void setCoords(int x, int y) { this->_center.setY(y); this->_center.setX(x); }
     friend bool operator==(const Field& lhs, const Field& rhs)
     {
         if (lhs._coords.x() == rhs._coords.x() && lhs._coords.y() == rhs._coords.y())
@@ -69,7 +57,7 @@ public:
         auto const pi = player_map.find(field.player);
         if (pi != player_map.end())
         {
-            os << pi->second << " at coordinates: " << field._coords.x() << ", " << field._coords.y() << '\n';
+            os << pi->second << " at coordinates: " << field.x() << ", " << field.y() << '\n';
         }
 
         return os;
@@ -77,7 +65,6 @@ public:
 
     int id;
     Player player;
-
 
 private:
 
@@ -112,10 +99,12 @@ public:
     std::vector<Field> adjacentStones(Field& field);
     void placeStone(Field& field);
     Player opposingPlayer() { return (_currentPlayer == Black) ? White : Black; }
+    Player opposingPlayer(Field& field) { return (field.getPlayer() == Black) ? White : Black; }
 
 
     int boardHeightWidth;
     Player _currentPlayer;
+
 private:
 
     vector<Field> _fields;

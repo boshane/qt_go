@@ -12,6 +12,7 @@
 #include <QColor>
 #include <QMouseEvent>
 #include <iostream>
+#include <sstream>
 #include "game.h"
 
 using namespace std;
@@ -100,7 +101,6 @@ public:
     void placeStone(Field& field);
     Player opposingPlayer() { return (_currentPlayer == Black) ? White : Black; }
     Player opposingPlayer(Field& field) { return (field.getPlayer() == Black) ? White : Black; }
-
 
     int boardHeightWidth;
     Player _currentPlayer;

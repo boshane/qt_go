@@ -3,7 +3,12 @@
 
 #include <QLabel>
 #include <QComboBox>
+#include <QRadioButton>
+#include <QGroupBox>
+#include <QButtonGroup>
 #include <Qt>
+#include <QTextEdit>
+
 #include "boardlogic.h"
 
 using namespace std;
@@ -15,11 +20,10 @@ class RenderBoard : public QWidget
 protected:
     void paintEvent(QPaintEvent* event) override;
 
-public slots:
-    void setPlayer(Player player);
+signals:
+    void appendStatus(Field field);
 
 public:
-
     explicit RenderBoard(GameData &gameData, QWidget *parent);
     void paintTable(QPainter* painter);
     void mouseMoveEvent(QMouseEvent *event) override;

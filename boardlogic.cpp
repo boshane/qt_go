@@ -85,15 +85,6 @@ void GameData::placeStone(Field& field)
     {
         field.player = this->_currentPlayer;
         doesFieldCapture(field);
-
-        if (this->_currentPlayer == Black)
-        {
-            this->_currentPlayer = White;
-        }
-        else
-        {
-            this->_currentPlayer = Black;
-        }
     }
 }
 

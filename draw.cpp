@@ -1,13 +1,15 @@
 #include "draw.h"
+#include "boardlogic.h"
+#include <sstream>
 
 QSize RenderBoard::sizeHint() const
 {
-    return QSize(800, 700);
+    return QSize(700, 500);
 }
 
 QSize RenderBoard::minimumSizeHint() const
 {
-    return QSize(800, 700);
+    return QSize(700, 500);
 }
 
 RenderBoard::RenderBoard(GameData &gameData, QWidget *parent)
@@ -116,15 +118,10 @@ void RenderBoard::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton && mouseOverField != -1)
     {
         auto& field = _gameData.getField(mouseOverField);
-
         _gameData.placeStone(field);
+
+        emit appendStatus(field);
+
         repaint();
     }
 }
-
-void RenderBoard::setPlayer(Player player)
-{
-    this->_gameData._currentPlayer = player;
-    update();
-}
-

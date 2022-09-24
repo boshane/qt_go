@@ -82,6 +82,8 @@ public:
 
     void populate_fields()
     {
+        _fields.clear();
+
         for (int i = 0; i < boardHeightWidth; i++)
         {
             for (int j = 0; j < boardHeightWidth; j++)

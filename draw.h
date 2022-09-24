@@ -8,6 +8,7 @@
 #include <QButtonGroup>
 #include <Qt>
 #include <QTextEdit>
+#include <QPushButton>
 
 #include "boardlogic.h"
 

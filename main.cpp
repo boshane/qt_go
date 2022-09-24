@@ -21,6 +21,7 @@ private slots:
     void radioSetWhite(bool checked);
     void radioSetBlack(bool checked);
     void appendStatusText(Field);
+    void newGame();
 
 private:
     void initWindow();
@@ -32,6 +33,9 @@ private:
     QRadioButton *radioWhite;
     QButtonGroup *playerButtons;
     QTextEdit *statusText;
+    QTextEdit *dataText;
+    QPushButton *resetGame;
+    QVBoxLayout *mainLayout;
 };
 
 GameWindow::GameWindow()
@@ -39,13 +43,26 @@ GameWindow::GameWindow()
     initWindow();
 }
 
+void GameWindow::newGame()
+{
+    gameData->populate_fields();
+    update();
+}
+
 void GameWindow::initWindow()
 {
     int boardSize = 10;
+
+    QHBoxLayout* displayLayout = new QHBoxLayout;
+    QHBoxLayout* controlLayout = new QHBoxLayout;
+    QVBoxLayout* displaySubLayout = new QVBoxLayout;
+
     gameData = new GameData(boardSize);
     renderBoard = new RenderBoard(*gameData, this);
-    statusText = new QTextEdit("Starting game...");
+    dataText = new QTextEdit("Game data...");
+    resetGame = new QPushButton(tr("Reset"));
 
+    statusText = new QTextEdit("Starting game...");
     playerButtons = new QButtonGroup();
     playerSelect = new QGroupBox(tr("Player select"));
     radioBlack = new QRadioButton(tr("Black"));
@@ -58,20 +75,25 @@ void GameWindow::initWindow()
     connect(radioBlack, SIGNAL(clicked(bool)), SLOT(radioSetBlack(bool)));
     connect(radioWhite, SIGNAL(clicked(bool)), SLOT(radioSetWhite(bool)));
     connect(renderBoard, SIGNAL(appendStatus(Field)), SLOT(appendStatusText(Field)));
+    connect(resetGame, SIGNAL(clicked(bool)), SLOT(newGame()));
 
     playerOptionLabel = new QLabel(tr("Select player"));
 
-    auto *mainLayout = new QGridLayout;
-    mainLayout->setColumnStretch(0, 1);
-    mainLayout->setColumnStretch(1, 1);
-    mainLayout->setColumnMinimumWidth(3, 150);
-    mainLayout->setColumnMinimumWidth(4, 150);
-    mainLayout->addWidget(renderBoard, 0, 0, 1, 3);
-    mainLayout->addWidget(statusText, 0, 3, 1, 4);
-    mainLayout->addWidget(playerOptionLabel, 2, 0, 1, 1);
-    mainLayout->addWidget(radioBlack);
-    mainLayout->addWidget(radioWhite);
+    mainLayout = new QVBoxLayout;
+    displayLayout->addWidget(renderBoard);
+    displaySubLayout->addWidget(statusText);
+    displaySubLayout->addWidget(dataText);
+    displayLayout->addLayout(displaySubLayout);
+
+    controlLayout->addWidget(playerOptionLabel);
+    controlLayout->addWidget(radioBlack);
+    controlLayout->addWidget(radioWhite);
+    controlLayout->addWidget(resetGame);
     playerSelect->setLayout(mainLayout);
+
+    mainLayout->addLayout(displayLayout);
+    mainLayout->addLayout(controlLayout);
+
     setLayout(mainLayout);
 
     setWindowTitle(tr("GO game"));
@@ -100,7 +122,7 @@ void GameWindow::appendStatusText(Field field)
 
     if (pi != player_map.end())
     {
-        out << pi->second << " at coordinates: " << field.x() << ", " << field.y() << '\n';
+        out << pi->second << " at coordinates: " << field.x() << ", " << field.y();
     }
 
     statusText->append(QString::fromStdString(out.str()));

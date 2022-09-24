@@ -4,12 +4,12 @@
 
 QSize RenderBoard::sizeHint() const
 {
-    return QSize(700, 500);
+    return QSize(500, 500);
 }
 
 QSize RenderBoard::minimumSizeHint() const
 {
-    return QSize(700, 500);
+    return QSize(500, 500);
 }
 
 RenderBoard::RenderBoard(GameData &gameData, QWidget *parent)

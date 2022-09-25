@@ -17,24 +17,13 @@
 
 using namespace std;
 
-static std::vector<std::pair<int, int>> modifiers = {
-        {-1, -1},
-        {0, -1},
-        {1, 1},
-        {-1, 0},
-        {1, 0},
-        {1, -1},
-        {0, 1},
-        {-1, 1}
-};
-
 class Field {
 public:
 
     Field() : _coords(QPoint(0, 0)), player{EMPTY}, id{0} {}
     Field(int x, int y, int id) : _coords{QPoint(x, y)}, player{EMPTY}, id{id}
     {
-        _center = QPoint((x + 1) * 40, (y + 1) * 40);
+        _center = QPoint((x * spacing) + 20, (y * spacing) + 20);
     }
     QPoint pixelPosition() { return this->_center; }
     QPoint coords() { return this->_coords; }
@@ -68,7 +57,7 @@ public:
     Player player;
 
 private:
-
+    int spacing = 50;
     QPoint _coords;
     QPoint _center;
 };

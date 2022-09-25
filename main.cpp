@@ -46,7 +46,7 @@ GameWindow::GameWindow()
 void GameWindow::newGame()
 {
     gameData->populate_fields();
-    update();
+    renderBoard->update();
 }
 
 void GameWindow::initWindow()

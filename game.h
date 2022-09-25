@@ -15,4 +15,15 @@ const std::unordered_map<Player, std::string> player_map {
         { EMPTY, "No player" }
 };
 
+static std::vector<std::pair<int, int>> modifiers = {
+        {-1, -1},
+        {0, -1},
+        {1, 1},
+        {-1, 0},
+        {1, 0},
+        {1, -1},
+        {0, 1},
+        {-1, 1}
+};
+
 #endif //QT_GO_GAME_H

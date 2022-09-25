@@ -1,4 +1,5 @@
 #include "math.h"
+#include "game.h"
 
 template<class T>
 Matrix<T>::Matrix()
@@ -37,7 +38,30 @@ Matrix<T>::Matrix(const Matrix& other)
 template<class T>
 T& Matrix<T>::operator()(const int row, const int col)
 {
+    assert(row >= 0 && row <= nRows());
+    assert(col >= 0 && col <= nCols());
+
     return data[(row * nRows()) + col];
+}
+
+// For every adjacent point around coordinate [row][col], if the value is nonzero, add to the return vector
+template<class T>
+std::vector<std::pair<int, int>> Matrix<T>::adjacentNonzero(int row, int col) {
+
+    std::vector<std::pair<int, int>> adj;
+
+    for (auto &i: modifiers) {
+        int adjx = row + i.first;
+        int adjy = col + i.second;
+
+        if ((adjx >= 0 && adjx <= nCols()) &&
+            (adjy >= 0 && adjy <= nRows()))
+        {
+            if (data[(adjy * nRows()) + adjx] != 0)
+                adj.push_back(i);
+        }
+    }
+    return adj;
 }
 
 template<class T>

@@ -16,6 +16,7 @@ public:
 
     int nRows() const { return rows; }
     int nCols() const { return cols; }
+    std::vector<std::pair<int, int>> adjacentNonzero(int row, int col);
 
     Matrix<T> operator+(Matrix<T>& other);
     Matrix<T> operator*(Matrix<T>& other);
@@ -42,7 +43,6 @@ public:
     Row operator[](int row) { return Row(*this, row); }
 
     std::vector<T> data;
-
 private:
     int rows, cols;
 };

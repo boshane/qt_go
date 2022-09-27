@@ -35,8 +35,8 @@ public:
 
     int mouseOverField = -1;
 private:
-    int _size;
-    GameData& _gameData;
+    int size;
+    GameData& gameData;
 };
 
 #endif //QT_GO_DRAW_H

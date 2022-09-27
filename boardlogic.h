@@ -14,28 +14,29 @@
 #include <iostream>
 #include <sstream>
 #include "game.h"
+#include "math.h"
 
 using namespace std;
 
 class Field {
 public:
 
-    Field() : _coords(QPoint(0, 0)), player{EMPTY}, id{0} {}
-    Field(int x, int y, int id) : _coords{QPoint(x, y)}, player{EMPTY}, id{id}
+    Field() : boardPos(QPoint(0, 0)), player{EMPTY}, id{0} {}
+    Field(int x, int y, int id) : boardPos{QPoint(x, y)}, player{EMPTY}, id{id}
     {
-        _center = QPoint((x * spacing) + 20, (y * spacing) + 20);
+        centerPixel = QPoint((x * spacing) + 20, (y * spacing) + 20);
     }
-    QPoint pixelPosition() { return this->_center; }
-    QPoint coords() { return this->_coords; }
-    int xScreenPos() { return _center.x(); }
-    int yScreenPos() { return _center.y(); }
-    int x() const { return _coords.x(); }
-    int y() const { return _coords.y(); }
+    QPoint pixelPosition() { return this->centerPixel; }
+    QPoint coords() { return boardPos; }
+    int xScreenPos() { return centerPixel.x(); }
+    int yScreenPos() { return centerPixel.y(); }
+    int x() const { return boardPos.x(); }
+    int y() const { return boardPos.y(); }
     Player getPlayer() { return player; }
     bool isEmpty() { if (this->getPlayer() == EMPTY) return true; else return false; }
     friend bool operator==(const Field& lhs, const Field& rhs)
     {
-        if (lhs._coords.x() == rhs._coords.x() && lhs._coords.y() == rhs._coords.y())
+        if (lhs.boardPos.x() == rhs.boardPos.x() && lhs.boardPos.y() == rhs.boardPos.y())
         {
             return true;
         }
@@ -52,14 +53,15 @@ public:
 
         return os;
     }
+    operator int() { return static_cast<int>(getPlayer()); }
 
     int id;
     Player player;
 
 private:
     int spacing = 50;
-    QPoint _coords;
-    QPoint _center;
+    QPoint boardPos;
+    QPoint centerPixel;
 };
 
 
@@ -67,38 +69,37 @@ class GameData
 {
 public:
 
-    explicit GameData(int hw) : boardHeightWidth{hw}, _currentPlayer{Black} { populate_fields(); };
+    explicit GameData(int hw) : boardHeightWidth{hw}, currentPlayer{Black} { initMatrix(); };
 
-    void populate_fields()
+    void initMatrix()
     {
-        _fields.clear();
-
+        fields = new Matrix<Field>;
+        fields->data.resize(boardHeightWidth * boardHeightWidth);
         for (int i = 0; i < boardHeightWidth; i++)
         {
             for (int j = 0; j < boardHeightWidth; j++)
             {
-                this->_fields.emplace_back(j, i, (i * boardHeightWidth) + j);
+                fields->get(i, j) = Field {j, i, (i * boardHeightWidth) + j};
             }
         }
     }
-    size_t totalFields() const { return this->_fields.size(); };
-    Field& getField(int id) { return _fields[id]; }
-    Field& getField(int x, int y) { return _fields[(y * boardHeightWidth) + x]; };
-    vector<Field> Fields() { return this->_fields; };
+    size_t totalFields() const { return fields->size(); };
+    Field& getField(int x, int y) { return fields->get(x, y); }
     void findGroup(std::vector<Field>& final, std::vector<Field>& pending);
     void doesFieldCapture(Field& field);
     bool fieldContainsOpponent(Field& field) const;
     std::vector<Field> adjacentStones(Field& field);
     void placeStone(Field& field);
-    Player opposingPlayer() { return (_currentPlayer == Black) ? White : Black; }
+    Player opposingPlayer() { return (currentPlayer == Black) ? White : Black; }
     Player opposingPlayer(Field& field) { return (field.getPlayer() == Black) ? White : Black; }
+    int numberOfFields() { return (boardHeightWidth * boardHeightWidth) - 1; }
+    Field& firstField() { return fields->front(); }
+    Field& lastField() { return fields->back(); }
 
     int boardHeightWidth;
-    Player _currentPlayer;
-
+    Player currentPlayer;
+    Matrix<Field>* fields;
 private:
-
-    vector<Field> _fields;
 };
 
 

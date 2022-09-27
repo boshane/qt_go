@@ -25,7 +25,7 @@ std::vector<Field> GameData::adjacentStones(Field& field)
 
 bool GameData::fieldContainsOpponent(Field& field) const
 {
-    if (field.getPlayer() != _currentPlayer && field.getPlayer() != EMPTY)
+    if (field.getPlayer() != currentPlayer && field.getPlayer() != EMPTY)
     {
         if (field.coords().x() < boardHeightWidth && field.coords().y() < boardHeightWidth)
         {
@@ -83,7 +83,7 @@ void GameData::placeStone(Field& field)
 {
     if (field.isEmpty())
     {
-        field.player = this->_currentPlayer;
+        field.player = this->currentPlayer;
         doesFieldCapture(field);
     }
 }

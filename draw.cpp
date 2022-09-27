@@ -1,5 +1,6 @@
 #include "draw.h"
 #include "boardlogic.h"
+#include "math.h"
 #include <sstream>
 
 QSize RenderBoard::sizeHint() const
@@ -13,7 +14,7 @@ QSize RenderBoard::minimumSizeHint() const
 }
 
 RenderBoard::RenderBoard(GameData &gameData, QWidget *parent)
-        : QWidget(parent), _gameData(gameData) {
+        : QWidget(parent), gameData(gameData) {
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
 }
@@ -21,13 +22,13 @@ RenderBoard::RenderBoard(GameData &gameData, QWidget *parent)
 
 void RenderBoard::paintEvent(QPaintEvent *event)
 {
-    int boardSize = this->_gameData.boardHeightWidth;
+    int boardSize = this->gameData.boardHeightWidth;
     int spacing = 600 / boardSize;
 
     QPainter painter(this);
     paintTable(&painter);
 
-    for (auto &i : _gameData.Fields())
+    for (auto &i : gameData.fields->data)
     {
         Player currentPlayer = i.getPlayer();
         painter.setPen(QPen(Qt::black, 1));
@@ -50,10 +51,10 @@ void RenderBoard::paintEvent(QPaintEvent *event)
 
 void RenderBoard::paintTable(QPainter* painter)
 {
-    int boardhw = _gameData.boardHeightWidth;
-    int totalFields = this->_gameData.Fields().size();
-    QPoint boardTopLeft = _gameData.Fields().front().pixelPosition();
-    QPoint boardBottomRight = _gameData.Fields().back().pixelPosition();
+    int boardhw = gameData.boardHeightWidth;
+    int totalFields = this->gameData.numberOfFields();
+    QPoint boardTopLeft = gameData.firstField().pixelPosition();
+    QPoint boardBottomRight = gameData.lastField().pixelPosition();
     QRect board = QRect(boardTopLeft, boardBottomRight);
     setMouseTracking(true);
 
@@ -61,19 +62,16 @@ void RenderBoard::paintTable(QPainter* painter)
     painter->drawRect(board);
     painter->setPen(QPen(Qt::black, 2));
 
-    for (int i = 1; i < boardhw - 1; i++)
-    {
-        int cur = i * boardhw;
+    for (int i = 1; i < boardhw - 1; i++) {
 
-        QPoint from = _gameData.Fields()[cur].pixelPosition();
-        QPoint to = _gameData.Fields()[(cur + boardhw) - 1].pixelPosition();
-        painter->drawLine(from, to);
+        Matrix<Field>::Row currentRow = gameData.fields->operator[](i);
 
-        cur = _gameData.totalFields() - (boardhw - i);
+        Field from = **currentRow.rowvec.begin();
+        Field to = *currentRow.rowvec.back();
 
-        from = _gameData.Fields()[i].pixelPosition();
-        to = _gameData.Fields()[cur].pixelPosition();
-        painter->drawLine(from, to);
+        painter->drawLine(from.pixelPosition(), to.pixelPosition());
+
+        // Figure out the column lines...!
     }
 
     if (mouseOverField != -1)
@@ -82,7 +80,7 @@ void RenderBoard::paintTable(QPainter* painter)
         QColor white20 = Qt::white;
         white20.setAlphaF( 0.8 );
         painter->setBrush(white20);
-        painter->drawEllipse(_gameData.Fields()[mouseOverField].pixelPosition(), 15, 15);
+        painter->drawEllipse(gameData.fields->data[mouseOverField].pixelPosition(), 15, 15);
     }
 }
 
@@ -90,7 +88,7 @@ void RenderBoard::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint mousePos = event->pos();
 
-    for (auto &i : _gameData.Fields()) {
+    for (auto &i : gameData.fields->data) {
         if ((mousePos.x() > (i.pixelPosition().x() - 20)) && (mousePos.x() < (i.pixelPosition().x() + 20)) &&
             (mousePos.y() > (i.pixelPosition().y() - 20)) && (mousePos.y() < (i.pixelPosition().y() + 20))) {
             if (mouseOverField == i.id)
@@ -117,8 +115,8 @@ void RenderBoard::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton && mouseOverField != -1)
     {
-        auto& field = _gameData.getField(mouseOverField);
-        _gameData.placeStone(field);
+        auto& field = gameData.fields->data[mouseOverField];
+        gameData.placeStone(field);
 
         emit appendStatus(field);
 

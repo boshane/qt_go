@@ -45,7 +45,7 @@ GameWindow::GameWindow()
 
 void GameWindow::newGame()
 {
-    gameData->populate_fields();
+    gameData->initMatrix();
     renderBoard->update();
 }
 
@@ -103,7 +103,7 @@ void GameWindow::radioSetBlack(bool checked)
 {
     if (checked)
     {
-        gameData->_currentPlayer = Player::Black;
+        gameData->currentPlayer = Player::Black;
     }
 }
 
@@ -111,7 +111,7 @@ void GameWindow::radioSetWhite(bool checked)
 {
     if (checked)
     {
-        gameData->_currentPlayer = Player::White;
+        gameData->currentPlayer = Player::White;
     }
 }
 

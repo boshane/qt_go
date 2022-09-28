@@ -53,9 +53,10 @@ void RenderBoard::paintTable(QPainter* painter)
 {
     int boardhw = gameData.boardHeightWidth;
     int totalFields = this->gameData.numberOfFields();
-    QPoint boardTopLeft = gameData.firstField().pixelPosition();
-    QPoint boardBottomRight = gameData.lastField().pixelPosition();
-    QRect board = QRect(boardTopLeft, boardBottomRight);
+    QPoint fieldTopLeft = gameData.firstField().pixelPosition();
+    QPoint fieldBottomRight = gameData.lastField().pixelPosition();
+
+    QRect board = QRect(fieldTopLeft, fieldBottomRight);
     setMouseTracking(true);
 
     painter->setBrush(QColor::fromRgb(217, 177, 140, 255));
@@ -64,14 +65,16 @@ void RenderBoard::paintTable(QPainter* painter)
 
     for (int i = 1; i < boardhw - 1; i++) {
 
-        Matrix<Field>::Row currentRow = gameData.fields->operator[](i);
+        Matrix<Field>::Row currentRow = gameData.fields->row(i);
+        Matrix<Field>::Col currentCol = gameData.fields->col(i);
 
-        Field from = **currentRow.rowvec.begin();
+        Field from = *currentRow.rowvec.front();
         Field to = *currentRow.rowvec.back();
-
         painter->drawLine(from.pixelPosition(), to.pixelPosition());
 
-        // Figure out the column lines...!
+        from = *currentCol.colvec.front();
+        to = *currentCol.colvec.back();
+        painter->drawLine(from.pixelPosition(), to.pixelPosition());
     }
 
     if (mouseOverField != -1)

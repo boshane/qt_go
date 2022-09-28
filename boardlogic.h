@@ -26,7 +26,7 @@ public:
     {
         centerPixel = QPoint((x * spacing) + 20, (y * spacing) + 20);
     }
-    QPoint pixelPosition() { return this->centerPixel; }
+    QPoint pixelPosition() { return centerPixel; }
     QPoint coords() { return boardPos; }
     int xScreenPos() { return centerPixel.x(); }
     int yScreenPos() { return centerPixel.y(); }
@@ -73,8 +73,7 @@ public:
 
     void initMatrix()
     {
-        fields = new Matrix<Field>;
-        fields->data.resize(boardHeightWidth * boardHeightWidth);
+        fields = new Matrix<Field>(boardHeightWidth, boardHeightWidth);
         for (int i = 0; i < boardHeightWidth; i++)
         {
             for (int j = 0; j < boardHeightWidth; j++)
@@ -93,8 +92,8 @@ public:
     Player opposingPlayer() { return (currentPlayer == Black) ? White : Black; }
     Player opposingPlayer(Field& field) { return (field.getPlayer() == Black) ? White : Black; }
     int numberOfFields() { return (boardHeightWidth * boardHeightWidth) - 1; }
-    Field& firstField() { return fields->front(); }
-    Field& lastField() { return fields->back(); }
+    Field& firstField() { return fields->data.front(); }
+    Field& lastField() { return fields->data.back(); }
 
     int boardHeightWidth;
     Player currentPlayer;

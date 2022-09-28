@@ -10,28 +10,9 @@ template<class T>
 class Matrix
 {
 public:
-    Matrix();
     Matrix(int rows, int cols);
     Matrix(int rows, int cols, int max);
     Matrix(const Matrix& other);
-
-    std::unique_ptr<T> startField = nullptr;
-
-//    class iterator {
-//    private:
-//        T *current;
-//
-//    public:
-//        iterator(T *c) : current{c} {}
-//
-//        bool operator==(const T &other) {
-//            return current == other.current;
-//        }
-//
-//        iterator &operator++() {
-//            current = (current == nullptr) ? nullptr : current++;
-//        };
-//    };
 
     int nRows() const { return rows; }
     int nCols() const { return cols; }
@@ -65,7 +46,26 @@ public:
         }
         std::vector<T*> rowvec;
     };
-    Row operator[](int row) { return Row(*this, row); }
+    struct Col
+    {
+        Matrix& parent;
+        int col;
+        Col(Matrix& parent, int col);
+        T& operator[](int row) { return parent(col, row); }
+        friend std::ostream& operator<<(std::ostream& os, const Col& nCol)
+        {
+            for (int i = 0; i < nCol.parent.nRows(); i++)
+            {
+                os << nCol.parent.data[(nCol.row * nCol.parent.nRows()) + i] << " ";
+            }
+            os << '\n';
+            return os;
+        }
+        std::vector<T*> colvec;
+    };
+    Row row(int row) { return Row(*this, row); }
+    Col col(int col) { return Col(*this, col); }
+
 
     std::vector<T> data;
 private:
@@ -84,6 +84,18 @@ Matrix<T>::Row::Row(Matrix& parent, int row) : parent(parent), row(row)
     }
 }
 
+template<class T>
+Matrix<T>::Col::Col(Matrix& parent, int col) : parent(parent), col(col)
+{
+    int rows = parent.nRows();
+    colvec.resize(rows);
+
+    for (int i = 0; i < rows; i++)
+    {
+        colvec[i] = &parent.data[(parent.nCols() * i) + col];
+    }
+}
+
 template<class U>
 std::ostream& operator<<(std::ostream& os, const Matrix<U>& matrix)
 {
@@ -98,17 +110,9 @@ std::ostream& operator<<(std::ostream& os, const Matrix<U>& matrix)
     return os;
 }
 
-
 template<class T>
-Matrix<T>::Matrix()
+Matrix<T>::Matrix(int rows, int cols) : rows{rows}, cols{cols}, data{std::vector<T>(rows * cols)}
 {
-}
-
-
-template<class T>
-Matrix<T>::Matrix(int rows, int cols) : rows{rows}, cols{cols}
-{
-    data.resize(rows * cols, 0);
 }
 
 template<class T>

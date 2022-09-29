@@ -5,24 +5,6 @@ bool higherRow(Field f0, Field f1)
     return (f0.coords().y() < f1.coords().y());
 }
 
-std::vector<Field> GameData::adjacentStones(Field& field)
-{
-    std::vector<Field> adj;
-
-    for (auto &i: modifiers) {
-        int adjx = field.coords().x() + i.first;
-        int adjy = field.coords().y() + i.second;
-
-        Field current = getField(adjx, adjy);
-
-        if (current.getPlayer() == opposingPlayer())
-        {
-            adj.push_back(current);
-        }
-    }
-    return adj;
-}
-
 bool GameData::fieldContainsOpponent(Field& field) const
 {
     if (field.getPlayer() != currentPlayer && field.getPlayer() != EMPTY)
@@ -35,6 +17,8 @@ bool GameData::fieldContainsOpponent(Field& field) const
     return false;
 }
 
+// If a placed stone has an adjacent opponent stone or stones in pending vector, add those stones to the final vector,
+// and recursively call the function to search for unfound pending stones.
 void GameData::findGroup(vector<Field>& final, vector<Field>& pending)
 {
     Field target = pending.back();
@@ -44,14 +28,22 @@ void GameData::findGroup(vector<Field>& final, vector<Field>& pending)
     {
         int adjx = target.coords().x() + i.first;
         int adjy = target.coords().y() + i.second;
-        Field cur = getField(adjx, adjy);
 
-        if (fieldContainsOpponent(cur))
+        if ((adjx < boardHeightWidth && adjx >= 0) &&
+            (adjy < boardHeightWidth && adjy >= 0))
         {
-            if (!(std::find(final.begin(), final.end(), cur) != final.end()))
-            {
-                pending.push_back(cur);
-                final.push_back(cur);
+            Field cur = getField(adjx, adjy);
+
+            auto const pi = player_map.find(cur.getPlayer());
+            if (pi != player_map.end()) {
+                std::cout << pi->second << " @ " << cur.coords().x() << " " << cur.coords().y() << '\n';
+            }
+
+            if (fieldContainsOpponent(cur)) {
+                if (!(std::find(final.begin(), final.end(), cur) != final.end())) {
+                    pending.push_back(cur);
+                    final.push_back(cur);
+                }
             }
         }
     }
@@ -59,6 +51,7 @@ void GameData::findGroup(vector<Field>& final, vector<Field>& pending)
     {
         findGroup(final, pending);
     }
+    std::cout << '\n';
 }
 
 void GameData::doesFieldCapture(Field& field)

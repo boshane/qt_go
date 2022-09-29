@@ -78,7 +78,7 @@ public:
         {
             for (int j = 0; j < boardHeightWidth; j++)
             {
-                fields->get(i, j) = Field {j, i, (i * boardHeightWidth) + j};
+                fields->get(j, i) = Field {j, i, (i * boardHeightWidth) + j};
             }
         }
     }

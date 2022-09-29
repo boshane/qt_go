@@ -25,7 +25,7 @@ public:
     T& operator()(const int row, const int col);
 
     void clear() { data.clear(); }
-    T& get(int row, int col) { return data[(row * nRows()) + col]; }
+    T& get(int x, int y) { return data[(y * nRows()) + x]; }
     T& front() { return data[0]; }
     T& back() { return data[nCols() * nRows()]; }
 
@@ -161,7 +161,7 @@ std::vector<std::pair<int, int>> Matrix<T>::adjacentNonzero(int row, int col) {
             (adjy >= 0 && adjy <= nRows()))
         {
             if (data[(adjy * nRows()) + adjx] != 0)
-                adj.push_back(i);
+                adj.emplace_back(adjx, adjy);
         }
     }
     return adj;

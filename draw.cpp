@@ -81,7 +81,7 @@ void RenderBoard::paintTable(QPainter* painter)
     {
         painter->setPen(QPen(Qt::green, 1));
         QColor white20 = Qt::white;
-        white20.setAlphaF( 0.8 );
+        white20.setAlphaF(0.8);
         painter->setBrush(white20);
         painter->drawEllipse(gameData.fields->data[mouseOverField].pixelPosition(), 15, 15);
     }

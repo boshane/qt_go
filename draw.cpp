@@ -119,10 +119,16 @@ void RenderBoard::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton && mouseOverField != -1)
     {
         auto& field = gameData.fields->data[mouseOverField];
-        gameData.placeStone(field);
 
-        emit appendStatus(field);
-
+        if (gameData.placeStone(field))
+        {
+            emit appendStatus(field);
+            std::vector<Field> final;
+            if (gameData.isGroupAdjacent(field, final))
+            {
+                emit doDataText(final);
+            }
+        }
         repaint();
     }
 }

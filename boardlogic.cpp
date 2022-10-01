@@ -19,7 +19,7 @@ bool GameData::fieldContainsOpponent(Field& field) const
 
 // If a placed stone has an adjacent opponent stone or stones in pending vector, add those stones to the final vector,
 // and recursively call the function to search for unfound pending stones.
-void GameData::findGroup(vector<Field>& final, vector<Field>& pending)
+void GameData::findGroup(std::vector<Field>& final, std::vector<Field>& pending)
 {
     Field target = pending.back();
     pending.pop_back();
@@ -34,11 +34,6 @@ void GameData::findGroup(vector<Field>& final, vector<Field>& pending)
         {
             Field cur = getField(adjx, adjy);
 
-            auto const pi = player_map.find(cur.getPlayer());
-            if (pi != player_map.end()) {
-                std::cout << pi->second << " @ " << cur.coords().x() << " " << cur.coords().y() << '\n';
-            }
-
             if (fieldContainsOpponent(cur)) {
                 if (!(std::find(final.begin(), final.end(), cur) != final.end())) {
                     pending.push_back(cur);
@@ -51,12 +46,80 @@ void GameData::findGroup(vector<Field>& final, vector<Field>& pending)
     {
         findGroup(final, pending);
     }
-    std::cout << '\n';
 }
 
-void GameData::doesFieldCapture(Field& field)
+// Is the group vector final enclosed by the attacking player?
+bool GameData::isGroupEnclosed(std::vector<Field> &final)
 {
-    std::vector<Field> final;
+    std::vector<int> xfields;
+    Player attacker = opposingPlayer(final.front());
+
+    // iterate through the y-value sorted vector 'final'
+    do
+    {
+        int nrow = final.back().y();
+        xfields.clear();
+
+        // iterate through each x-value per row and add to an vector
+        do
+        {
+            xfields.push_back(final.back().x());
+            final.pop_back();
+        } while (final.back().y() == nrow);
+
+        sort(xfields.begin(), xfields.end());
+
+        // if the last x-value minus the size of the total x-values in xfields is not equal to the first x-value,
+        // then it means there is an empty space in that row, and cannot be captured.
+        // TODO: follow up with the GO board rules for 'eyes'
+        if (((xfields.back() - (int)xfields.size()) + 1) == *xfields.begin())
+        {
+            int xmin = xfields.front() - 1;
+            int xmax = xfields.back() + 1;
+            Player min = fields->get(xmin, nrow).getPlayer();
+            Player max = fields->get(xmax, nrow).getPlayer();
+
+            if ((min == EMPTY || max == EMPTY) ||
+                (min != attacker || max != attacker))
+            {
+                return false;
+            }
+
+            // is the top row of xvalues covered by attackers?
+            if (nrow == final.front().y())
+            {
+                for (int i : xfields)
+                {
+                    if (fields->get(i, final.front().y() - 1).getPlayer() == EMPTY)
+                    {
+                        return false;
+                    }
+                }
+            }
+            // is the bottom row of xvalues covered by attackers?
+            if (nrow == final.back().y())
+            {
+                for (int i : xfields)
+                {
+                    if (fields->get(i, final.front().y() + 1).getPlayer() == EMPTY)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+        }
+        else return false;
+
+        std::cout << std::endl;
+    } while (final.begin() != final.end());
+
+    std::cout << "Group is enclosed.";
+    return true;
+}
+
+bool GameData::isGroupAdjacent(Field& field, std::vector<Field>& final)
+{
     std::vector<Field> pending;
 
     pending.push_back(field);
@@ -64,20 +127,21 @@ void GameData::doesFieldCapture(Field& field)
     findGroup(final, pending);
     std::sort(final.begin(), final.end(), higherRow);
 
-    Player attacker = opposingPlayer(field);
-
-    for (auto& i : final)
+    if (final.size() > 0)
     {
-        cout << i;
+        isGroupEnclosed(final);
+        return true;
     }
+    else return false;
 }
 
-void GameData::placeStone(Field& field)
+bool GameData::placeStone(Field& field)
 {
     if (field.isEmpty())
     {
         field.player = this->currentPlayer;
-        doesFieldCapture(field);
-    }
-}
 
+        return true;
+    }
+    return false;
+}

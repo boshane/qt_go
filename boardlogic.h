@@ -16,8 +16,6 @@
 #include "game.h"
 #include "math.h"
 
-using namespace std;
-
 class Field {
 public:
 
@@ -85,10 +83,11 @@ public:
     size_t totalFields() const { return fields->size(); };
     Field& getField(int x, int y) { return fields->get(x, y); }
     void findGroup(std::vector<Field>& final, std::vector<Field>& pending);
-    void doesFieldCapture(Field& field);
+    bool isGroupAdjacent(Field& field, std::vector<Field>& final);
+    bool isGroupEnclosed(std::vector<Field>& final);
     bool fieldContainsOpponent(Field& field) const;
     std::vector<Field> adjacentStones(Field& field);
-    void placeStone(Field& field);
+    bool placeStone(Field& field);
     Player opposingPlayer() { return (currentPlayer == Black) ? White : Black; }
     Player opposingPlayer(Field& field) { return (field.getPlayer() == Black) ? White : Black; }
     int numberOfFields() { return (boardHeightWidth * boardHeightWidth) - 1; }

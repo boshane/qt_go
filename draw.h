@@ -12,8 +12,6 @@
 
 #include "boardlogic.h"
 
-using namespace std;
-
 class RenderBoard : public QWidget
 {
     Q_OBJECT
@@ -23,6 +21,7 @@ protected:
 
 signals:
     void appendStatus(Field field);
+    void doDataText(std::vector<Field> group);
 
 public:
     explicit RenderBoard(GameData &gameData, QWidget *parent);

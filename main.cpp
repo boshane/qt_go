@@ -14,13 +14,11 @@ Q_OBJECT
 public:
     GameWindow();
 
-signals:
-    void appendStatus();
-
 private slots:
     void radioSetWhite(bool checked);
     void radioSetBlack(bool checked);
     void appendStatusText(Field);
+    void doDataText(std::vector<Field> group);
     void newGame();
 
 private:
@@ -34,6 +32,7 @@ private:
     QButtonGroup *playerButtons;
     QTextEdit *statusText;
     QTextEdit *dataText;
+    QScrollBar *statusScrollBar; // TODO: Complete the scrollbar moving to the end
     QPushButton *resetGame;
     QVBoxLayout *mainLayout;
 };
@@ -75,6 +74,7 @@ void GameWindow::initWindow()
     connect(radioBlack, SIGNAL(clicked(bool)), SLOT(radioSetBlack(bool)));
     connect(radioWhite, SIGNAL(clicked(bool)), SLOT(radioSetWhite(bool)));
     connect(renderBoard, SIGNAL(appendStatus(Field)), SLOT(appendStatusText(Field)));
+    connect(renderBoard, SIGNAL(doDataText(std::vector<Field>)), SLOT(doDataText(std::vector<Field>)));
     connect(resetGame, SIGNAL(clicked(bool)), SLOT(newGame()));
 
     playerOptionLabel = new QLabel(tr("Select player"));
@@ -126,6 +126,22 @@ void GameWindow::appendStatusText(Field field)
     }
 
     statusText->append(QString::fromStdString(out.str()));
+}
+
+void GameWindow::doDataText(std::vector<Field> group) {
+    dataText->clear();
+
+    for (auto &i: group)
+    {
+        auto const pi = player_map.find(i.player);
+
+        if (pi != player_map.end())
+        {
+            std::ostringstream out;
+            out << pi->second << " at coordinates: " << i.x() << ", " << i.y();
+            dataText->append(QString::fromStdString(out.str()));
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {

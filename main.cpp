@@ -128,19 +128,20 @@ void GameWindow::appendStatusText(Field field)
     statusText->append(QString::fromStdString(out.str()));
 }
 
-void GameWindow::doDataText(std::vector<Field> group) {
+void GameWindow::doDataText(std::vector<Field> group)
+{
     dataText->clear();
+    auto const pi = player_map.find(group.begin()->getPlayer());
+    std::ostringstream header;
+
+    header << "Removing " << pi->second << " stones at these coordinates:" << '\n';
+    dataText->append(QString::fromStdString(header.str()));
 
     for (auto &i: group)
     {
-        auto const pi = player_map.find(i.player);
-
-        if (pi != player_map.end())
-        {
-            std::ostringstream out;
-            out << pi->second << " at coordinates: " << i.x() << ", " << i.y();
-            dataText->append(QString::fromStdString(out.str()));
-        }
+        std::ostringstream out;
+        out << "[" << i.x() << ", " << i.y() << "] ";
+        dataText->append(QString::fromStdString(out.str()));
     }
 }
 

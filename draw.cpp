@@ -124,11 +124,16 @@ void RenderBoard::mousePressEvent(QMouseEvent *event)
         {
             emit appendStatus(field);
             std::vector<Field> final;
-            if (gameData.isGroupAdjacent(field, final))
+
+            if (gameData.isGroupAdjacent(field, final).size() > 0)
             {
-                emit doDataText(final);
+                if (gameData.isGroupEnclosed(final))
+                {
+                    emit doDataText(final);
+                    gameData.removeStones(final);
+                }
             }
         }
-        repaint();
+        update();
     }
 }

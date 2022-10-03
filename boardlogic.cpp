@@ -48,30 +48,65 @@ void GameData::findGroup(std::vector<Field>& final, std::vector<Field>& pending)
     }
 }
 
+// Does the target row have players in the columns?
+bool GameData::isRowSymmetrical(std::vector<int> columns, Matrix<Field>::Row target)
+{
+    for (int j : columns)
+    {
+        if (target[j].getPlayer() == EMPTY)
+        {
+            std::cout << target[j];
+            return false;
+        }
+    }
+    return true;
+}
+
 // Is the group vector final enclosed by the attacking player?
-bool GameData::isGroupEnclosed(std::vector<Field> &final)
+bool GameData::isGroupEnclosed(std::vector<Field> final)
 {
     std::vector<int> xfields;
-    Player attacker = opposingPlayer(final.front());
+    std::vector<Field> pending = final;
+    Player attacker = opposingPlayer(pending.front());
+    int nrow;
+    int firstrow = final.front().y();
+    int lastrow = final.back().y();
 
     // iterate through the y-value sorted vector 'final'
     do
     {
-        int nrow = final.back().y();
+        nrow = pending.back().y();
         xfields.clear();
 
-        // iterate through each x-value per row and add to an vector
+        // iterate through each x-value per row and add to a vector
         do
         {
-            xfields.push_back(final.back().x());
-            final.pop_back();
-        } while (final.back().y() == nrow);
+            xfields.push_back(pending.back().x());
+            pending.pop_back();
+        } while ((pending.begin() != pending.end()) && pending.back().y() == nrow);
 
         sort(xfields.begin(), xfields.end());
+
+        if ((firstrow - 1 >= 0) && firstrow == nrow)
+        {
+            if (!isRowSymmetrical(xfields, fields->row(firstrow - 1)))
+            {
+                return false;
+            }
+        }
+
+        if ((lastrow + 1 < fields->nRows()) && lastrow == nrow)
+        {
+            if (!isRowSymmetrical(xfields, fields->row(lastrow + 1)))
+            {
+                return false;
+            }
+        }
 
         // if the last x-value minus the size of the total x-values in xfields is not equal to the first x-value,
         // then it means there is an empty space in that row, and cannot be captured.
         // TODO: follow up with the GO board rules for 'eyes'
+
         if (((xfields.back() - (int)xfields.size()) + 1) == *xfields.begin())
         {
             int xmin = xfields.front() - 1;
@@ -85,40 +120,25 @@ bool GameData::isGroupEnclosed(std::vector<Field> &final)
                 return false;
             }
 
-            // is the top row of xvalues covered by attackers?
-            if (nrow == final.front().y())
-            {
-                for (int i : xfields)
-                {
-                    if (fields->get(i, final.front().y() - 1).getPlayer() == EMPTY)
-                    {
-                        return false;
-                    }
-                }
-            }
-            // is the bottom row of xvalues covered by attackers?
-            if (nrow == final.back().y())
-            {
-                for (int i : xfields)
-                {
-                    if (fields->get(i, final.front().y() + 1).getPlayer() == EMPTY)
-                    {
-                        return false;
-                    }
-                }
-            }
-
         }
         else return false;
 
         std::cout << std::endl;
-    } while (final.begin() != final.end());
+    } while (pending.begin() != pending.end());
 
     std::cout << "Group is enclosed.";
     return true;
 }
 
-bool GameData::isGroupAdjacent(Field& field, std::vector<Field>& final)
+void GameData::removeStones(std::vector<Field>& stones) const
+{
+    for (auto i : stones)
+    {
+        fields->get(i.x(), i.y()).setPlayer(EMPTY);
+    }
+}
+
+std::vector<Field>& GameData::isGroupAdjacent(Field& field, std::vector<Field>& final)
 {
     std::vector<Field> pending;
 
@@ -127,12 +147,7 @@ bool GameData::isGroupAdjacent(Field& field, std::vector<Field>& final)
     findGroup(final, pending);
     std::sort(final.begin(), final.end(), higherRow);
 
-    if (final.size() > 0)
-    {
-        isGroupEnclosed(final);
-        return true;
-    }
-    else return false;
+    return final;
 }
 
 bool GameData::placeStone(Field& field)

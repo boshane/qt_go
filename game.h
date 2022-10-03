@@ -10,9 +10,9 @@ enum Player {
 };
 
 const std::unordered_map<Player, std::string> player_map {
-        { Black, "Player Black" },
-        { White, "Player White" },
-        { EMPTY, "No player" }
+        { Black, "Black" },
+        { White, "White" },
+        { EMPTY, "Empty" }
 };
 
 static std::vector<std::pair<int, int>> modifiers = {

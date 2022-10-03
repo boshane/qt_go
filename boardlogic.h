@@ -30,7 +30,8 @@ public:
     int yScreenPos() { return centerPixel.y(); }
     int x() const { return boardPos.x(); }
     int y() const { return boardPos.y(); }
-    Player getPlayer() { return player; }
+    Player& getPlayer() { return player; }
+    void setPlayer(Player newPlayer) { player = newPlayer; }
     bool isEmpty() { if (this->getPlayer() == EMPTY) return true; else return false; }
     friend bool operator==(const Field& lhs, const Field& rhs)
     {
@@ -83,8 +84,10 @@ public:
     size_t totalFields() const { return fields->size(); };
     Field& getField(int x, int y) { return fields->get(x, y); }
     void findGroup(std::vector<Field>& final, std::vector<Field>& pending);
-    bool isGroupAdjacent(Field& field, std::vector<Field>& final);
-    bool isGroupEnclosed(std::vector<Field>& final);
+    std::vector<Field>& isGroupAdjacent(Field& field, std::vector<Field>& final);
+    bool isGroupEnclosed(std::vector<Field> final);
+    bool isRowSymmetrical(std::vector<int> columns, Matrix<Field>::Row target);
+    void removeStones(std::vector<Field>& final) const;
     bool fieldContainsOpponent(Field& field) const;
     std::vector<Field> adjacentStones(Field& field);
     bool placeStone(Field& field);

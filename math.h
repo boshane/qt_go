@@ -23,7 +23,6 @@ public:
     Matrix<T> operator*(Matrix<T>& other);
     template<class U> friend std::ostream& operator<<(std::ostream& os, const Matrix<U>& matrix);
     T& operator()(const int row, const int col);
-
     void clear() { data.clear(); }
     T& get(int x, int y) { return data[(y * nRows()) + x]; }
     T& front() { return data[0]; }

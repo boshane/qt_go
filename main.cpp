@@ -17,6 +17,8 @@ public:
 private slots:
     void radioSetWhite(bool checked);
     void radioSetBlack(bool checked);
+    void radioSetTen(bool checked);
+    void radioSetTwenty(bool checked);
     void appendStatusText(Field);
     void doDataText(std::vector<Field> group);
     void newGame();
@@ -25,11 +27,16 @@ private:
     void initWindow();
     RenderBoard *renderBoard;
     GameData *gameData;
-    QLabel *playerOptionLabel;
+    QLabel *playerOptionLabel; // player selection group
     QGroupBox *playerSelect;
     QRadioButton *radioBlack;
     QRadioButton *radioWhite;
     QButtonGroup *playerButtons;
+    QLabel *boardOptionLabel;
+    QGroupBox *sizeSelect; // board size selection group
+    QRadioButton *radioTen;
+    QRadioButton *radioTwenty;
+    QButtonGroup *sizeButtons;
     QTextEdit *statusText;
     QTextEdit *dataText;
     QScrollBar *statusScrollBar; // TODO: Complete the scrollbar moving to the end
@@ -48,57 +55,6 @@ void GameWindow::newGame()
     renderBoard->update();
 }
 
-void GameWindow::initWindow()
-{
-    int boardSize = 10;
-
-    QHBoxLayout* displayLayout = new QHBoxLayout;
-    QHBoxLayout* controlLayout = new QHBoxLayout;
-    QVBoxLayout* displaySubLayout = new QVBoxLayout;
-
-    gameData = new GameData(boardSize);
-    renderBoard = new RenderBoard(*gameData, this);
-    dataText = new QTextEdit("Game data...");
-    resetGame = new QPushButton(tr("Reset"));
-
-    statusText = new QTextEdit("Starting game...");
-    playerButtons = new QButtonGroup();
-    playerSelect = new QGroupBox(tr("Player select"));
-    radioBlack = new QRadioButton(tr("Black"));
-    radioWhite = new QRadioButton(tr("White"));
-
-    radioBlack->setChecked(true);
-    playerButtons->addButton(radioBlack);
-    playerButtons->addButton(radioWhite);
-
-    connect(radioBlack, SIGNAL(clicked(bool)), SLOT(radioSetBlack(bool)));
-    connect(radioWhite, SIGNAL(clicked(bool)), SLOT(radioSetWhite(bool)));
-    connect(renderBoard, SIGNAL(appendStatus(Field)), SLOT(appendStatusText(Field)));
-    connect(renderBoard, SIGNAL(doDataText(std::vector<Field>)), SLOT(doDataText(std::vector<Field>)));
-    connect(resetGame, SIGNAL(clicked(bool)), SLOT(newGame()));
-
-    playerOptionLabel = new QLabel(tr("Select player"));
-
-    mainLayout = new QVBoxLayout;
-    displayLayout->addWidget(renderBoard);
-    displaySubLayout->addWidget(statusText);
-    displaySubLayout->addWidget(dataText);
-    displayLayout->addLayout(displaySubLayout);
-
-    controlLayout->addWidget(playerOptionLabel);
-    controlLayout->addWidget(radioBlack);
-    controlLayout->addWidget(radioWhite);
-    controlLayout->addWidget(resetGame);
-    playerSelect->setLayout(mainLayout);
-
-    mainLayout->addLayout(displayLayout);
-    mainLayout->addLayout(controlLayout);
-
-    setLayout(mainLayout);
-
-    setWindowTitle(tr("GO game"));
-}
-
 void GameWindow::radioSetBlack(bool checked)
 {
     if (checked)
@@ -114,6 +70,96 @@ void GameWindow::radioSetWhite(bool checked)
         gameData->currentPlayer = Player::White;
     }
 }
+
+void GameWindow::radioSetTen(bool checked)
+{
+    if (checked)
+    {
+        gameData->boardHeightWidth = 10;
+        gameData->initMatrix();
+        renderBoard->update();
+    }
+}
+
+void GameWindow::radioSetTwenty(bool checked)
+{
+    if (checked)
+    {
+        gameData->boardHeightWidth = 20;
+        gameData->initMatrix();
+        renderBoard->update();
+    }
+}
+
+void GameWindow::initWindow()
+{
+    QHBoxLayout* displayLayout = new QHBoxLayout;
+    QVBoxLayout* displaySubLayout = new QVBoxLayout;
+    QHBoxLayout* controlLayout = new QHBoxLayout;
+    QVBoxLayout* controlPlayerLayout = new QVBoxLayout;
+    QVBoxLayout* controlBoardLayout = new QVBoxLayout;
+
+    gameData = new GameData(10);
+    renderBoard = new RenderBoard(*gameData, this);
+    dataText = new QTextEdit("Game data...");
+    resetGame = new QPushButton(tr("Reset"));
+
+    statusText = new QTextEdit("Starting game...");
+    playerButtons = new QButtonGroup();
+    playerSelect = new QGroupBox(tr("Player select"));
+    radioBlack = new QRadioButton(tr("Black"));
+    radioWhite = new QRadioButton(tr("White"));
+
+    radioBlack->setChecked(true);
+    playerButtons->addButton(radioBlack);
+    playerButtons->addButton(radioWhite);
+
+    sizeButtons = new QButtonGroup();
+    sizeSelect = new QGroupBox(tr("Board size"));
+    radioTen = new QRadioButton(tr("Ten"));
+    radioTwenty = new QRadioButton(tr("Twenty"));
+
+    radioTen->setChecked(true);
+    sizeButtons->addButton(radioTen);
+    sizeButtons->addButton(radioTwenty);
+
+    connect(radioBlack, SIGNAL(clicked(bool)), SLOT(radioSetBlack(bool)));
+    connect(radioWhite, SIGNAL(clicked(bool)), SLOT(radioSetWhite(bool)));
+    connect(radioTen, SIGNAL(clicked(bool)), SLOT(radioSetTen(bool)));
+    connect(radioTwenty, SIGNAL(clicked(bool)), SLOT(radioSetTwenty(bool)));
+    connect(renderBoard, SIGNAL(appendStatus(Field)), SLOT(appendStatusText(Field)));
+    connect(renderBoard, SIGNAL(doDataText(std::vector<Field>)), SLOT(doDataText(std::vector<Field>)));
+    connect(resetGame, SIGNAL(clicked(bool)), SLOT(newGame()));
+
+    playerOptionLabel = new QLabel(tr("Select player"));
+    boardOptionLabel = new QLabel(tr("Select board size"));
+
+    mainLayout = new QVBoxLayout;
+    displayLayout->addWidget(renderBoard);
+    displaySubLayout->addWidget(statusText);
+    displaySubLayout->addWidget(dataText);
+    displayLayout->addLayout(displaySubLayout);
+
+    controlPlayerLayout->addWidget(playerOptionLabel);
+    controlPlayerLayout->addWidget(radioBlack);
+    controlPlayerLayout->addWidget(radioWhite);
+    controlBoardLayout->addWidget(boardOptionLabel);
+    controlBoardLayout->addWidget(radioTen);
+    controlBoardLayout->addWidget(radioTwenty);
+    controlLayout->addWidget(resetGame);
+    controlLayout->addLayout(controlPlayerLayout);
+    controlLayout->addLayout(controlBoardLayout);
+
+    playerSelect->setLayout(mainLayout);
+    sizeSelect->setLayout(mainLayout);
+    mainLayout->addLayout(displayLayout);
+    mainLayout->addLayout(controlLayout);
+
+    setLayout(mainLayout);
+
+    setWindowTitle(tr("GO game"));
+}
+
 
 void GameWindow::appendStatusText(Field field)
 {

@@ -17,11 +17,13 @@
 #include "math.h"
 
 class Field {
+
 public:
 
     Field() : boardPos(QPoint(0, 0)), player{EMPTY}, id{0} {}
-    Field(int x, int y, int id) : boardPos{QPoint(x, y)}, player{EMPTY}, id{id}
+    Field(int x, int y, int boardSize) : boardPos{QPoint(x, y)}, player{EMPTY}, id{(y * boardSize) + x}
     {
+        int spacing = 900 / boardSize;
         centerPixel = QPoint((x * spacing) + 20, (y * spacing) + 20);
     }
     QPoint pixelPosition() { return centerPixel; }
@@ -58,7 +60,6 @@ public:
     Player player;
 
 private:
-    int spacing = 50;
     QPoint boardPos;
     QPoint centerPixel;
 };
@@ -68,6 +69,7 @@ class GameData
 {
 public:
 
+    explicit GameData() : boardHeightWidth{10}, currentPlayer{Black} { initMatrix(); };
     explicit GameData(int hw) : boardHeightWidth{hw}, currentPlayer{Black} { initMatrix(); };
 
     void initMatrix()
@@ -77,7 +79,7 @@ public:
         {
             for (int j = 0; j < boardHeightWidth; j++)
             {
-                fields->get(j, i) = Field {j, i, (i * boardHeightWidth) + j};
+                fields->get(j, i) = Field {j, i, boardHeightWidth};
             }
         }
     }
@@ -89,7 +91,6 @@ public:
     bool isRowSymmetrical(std::vector<int> columns, Matrix<Field>::Row target);
     void removeStones(std::vector<Field>& final) const;
     bool fieldContainsOpponent(Field& field) const;
-    std::vector<Field> adjacentStones(Field& field);
     bool placeStone(Field& field);
     Player opposingPlayer() { return (currentPlayer == Black) ? White : Black; }
     Player opposingPlayer(Field& field) { return (field.getPlayer() == Black) ? White : Black; }

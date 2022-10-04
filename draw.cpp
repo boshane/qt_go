@@ -5,12 +5,12 @@
 
 QSize RenderBoard::sizeHint() const
 {
-    return QSize(500, 500);
+    return QSize(900, 900);
 }
 
 QSize RenderBoard::minimumSizeHint() const
 {
-    return QSize(500, 500);
+    return QSize(900, 900);
 }
 
 RenderBoard::RenderBoard(GameData &gameData, QWidget *parent)
@@ -134,6 +134,7 @@ void RenderBoard::mousePressEvent(QMouseEvent *event)
                 }
             }
         }
+        gameData.currentPlayer = gameData.opposingPlayer(field);
         update();
     }
 }

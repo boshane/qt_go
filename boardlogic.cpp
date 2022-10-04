@@ -114,12 +114,20 @@ bool GameData::isGroupEnclosed(std::vector<Field> final)
             Player min = fields->get(xmin, nrow).getPlayer();
             Player max = fields->get(xmax, nrow).getPlayer();
 
-            if ((min == EMPTY || max == EMPTY) ||
-                (min != attacker || max != attacker))
+            // Check for xfields exceeding the column width or height. Find a more elegant way to do this.
+            if (xmin < 0) {
+                if ((max == EMPTY) || (max != attacker))
+                    return false;
+            }
+            else if (xmax >= fields->nRows()) {
+                if ((min == EMPTY) || (min != attacker))
+                    return false;
+            }
+            else if (((min == EMPTY || max == EMPTY) ||
+                      (min != attacker || max != attacker)))
             {
                 return false;
             }
-
         }
         else return false;
 
@@ -155,7 +163,6 @@ bool GameData::placeStone(Field& field)
     if (field.isEmpty())
     {
         field.player = this->currentPlayer;
-
         return true;
     }
     return false;

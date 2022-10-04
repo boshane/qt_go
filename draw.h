@@ -25,6 +25,7 @@ signals:
 
 public:
     explicit RenderBoard(GameData &gameData, QWidget *parent);
+    void newBoard(GameData &gd) { gameData = gd; }
     void paintTable(QPainter* painter);
     void mouseMoveEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
